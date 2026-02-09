@@ -1,0 +1,70 @@
+name: CI - Markdown
+
+on:
+  push:
+    branches: [main]
+    paths: ['**/*.md', '**/*.json']
+  pull_request:
+    branches: [main]
+    paths: ['**/*.md', '**/*.json']
+  workflow_dispatch:
+
+jobs:
+  lint-markdown:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install markdownlint
+        run: npm install -g markdownlint-cli
+
+      - name: Lint Markdown files
+        run: markdownlint '**/*.md' --ignore node_modules --disable MD013 MD033 MD041 || true
+
+  validate-json:
+    name: Validate JSON
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate JSON files
+        run: |
+          errors=0
+          for f in $(find . -name '*.json' -not -path './node_modules/*'); do
+            if ! python3 -m json.tool "$f" > /dev/null 2>&1; then
+              echo "Invalid JSON: $f"
+              errors=$((errors + 1))
+            fi
+          done
+          if [ $errors -gt 0 ]; then
+            echo "Found $errors invalid JSON file(s)"
+            exit 1
+          else
+            echo "All JSON files are valid"
+          fi
+
+  check-links:
+    name: Check Links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for broken internal links
+        run: |
+          errors=0
+          for md in $(find . -name '*.md' -not -path './node_modules/*'); do
+            while IFS= read -r link; do
+              target=$(echo "$link" | sed 's/.*](\(.*\))/\1/' | sed 's/#.*//')
+              if [ -n "$target" ] && [ ! "$target" = "http"* ] && [ ! -f "$target" ] && [ ! -d "$target" ]; then
+                echo "Broken link in $md: $target"
+                errors=$((errors + 1))
+              fi
+            done < <(grep -oP '\[.*?\]\((?!http)[^)]+\)' "$md" 2>/dev/null || true)
+          done
+          echo "Link check complete ($errors issues found)"
