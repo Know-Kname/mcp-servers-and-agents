@@ -1,0 +1,61 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "node",
+      "args": ["<path-to>/server-filesystem/dist/index.js", "c:/", "c:/Users/<username>"]
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "sequentialthinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "perplexity-ask": {
+      "command": "npx",
+      "args": ["-y", "@perplexity-ai/mcp-server"],
+      "env": { "PERPLEXITY_API_KEY": "${env:PERPLEXITY_API_KEY}" }
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    },
+    "fetch": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "mcp/fetch"]
+    },
+    "git": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-v", "C:/Users/<username>:/user", "mcp/git"]
+    },
+    "github-official": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-e", "GITHUB_PERSONAL_ACCESS_TOKEN", "ghcr.io/github/github-mcp-server"]
+    },
+    "notion": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-e", "NOTION_API_KEY=${env:NOTION_API_KEY}", "mcp/notion"]
+    },
+    "n8n": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "--init", "-e", "MCP_MODE=stdio", "-e", "LOG_LEVEL=error", "-e", "N8N_API_URL", "-e", "N8N_API_KEY", "mcp/n8n"]
+    },
+    "fabric": {
+      "command": "uvx",
+      "args": ["microsoft-fabric-mcp"]
+    },
+    "power-apps": {
+      "command": "node",
+      "args": ["<path-to>/power-apps-mcp-server.js"],
+      "env": { "AZURE_TENANT_ID": "${env:AZURE_TENANT_ID}", "AZURE_CLIENT_ID": "${env:AZURE_CLIENT_ID}", "AZURE_CLIENT_SECRET": "${env:AZURE_CLIENT_SECRET}", "DATAVERSE_URL": "${env:DATAVERSE_URL}" }
+    },
+    "sharepoint": {
+      "command": "node",
+      "args": ["<path-to>/sharepoint-mcp-server.js"],
+      "env": { "AZURE_TENANT_ID": "${env:AZURE_TENANT_ID}", "AZURE_CLIENT_ID": "${env:AZURE_CLIENT_ID}", "AZURE_CLIENT_SECRET": "${env:AZURE_CLIENT_SECRET}", "SHAREPOINT_SITE_URL": "${env:SHAREPOINT_SITE_URL}" }
+    },
+    "vercel": { "url": "https://mcp.vercel.com" },
+    "figma": { "url": "https://mcp.figma.com/mcp" }
+  }
+}
