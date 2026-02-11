@@ -17,11 +17,30 @@
       "command": "npx",
       "args": ["-y", "server-sharepoint"],
       "env": {
-        "AZURE_APPLICATION_ID": "${AZURE_APPLICATION_ID}",
-        "AZURE_APPLICATION_CERTIFICATE_THUMBPRINT": "${AZURE_APPLICATION_CERTIFICATE_THUMBPRINT}",
-        "AZURE_APPLICATION_CERTIFICATE_PASSWORD": "${AZURE_APPLICATION_CERTIFICATE_PASSWORD}",
+        "SHAREPOINT_CLIENT_ID": "${SHAREPOINT_CLIENT_ID}",
+        "SHAREPOINT_CLIENT_SECRET": "${SHAREPOINT_CLIENT_SECRET}",
         "M365_TENANT_ID": "${M365_TENANT_ID}"
       }
+    },
+    "memory-cache": {
+      "command": "npx",
+      "args": ["-y", "ib-mcp-cache-server"],
+      "env": {
+        "CACHE_MAX_SIZE": "100",
+        "CACHE_TTL": "3600"
+      }
+    },
+    "memory-keeper": {
+      "command": "npx",
+      "args": ["-y", "mcp-memory-keeper"]
+    },
+    "context-compress": {
+      "command": "npx",
+      "args": ["-y", "mcp-context-hub"]
+    },
+    "chroma": {
+      "command": "npx",
+      "args": ["-y", "chromadb-mcp"]
     }
   }
 }
