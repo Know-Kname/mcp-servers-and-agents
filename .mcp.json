@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "azure-mcp-server": {
+      "command": "npx",
+      "args": ["-y", "@azure/mcp@latest", "server", "start"],
+      "env": {
+        "AZURE_TENANT_ID": "${AZURE_TENANT_ID}",
+        "AZURE_CLIENT_ID": "${AZURE_CLIENT_ID}",
+        "AZURE_CLIENT_SECRET": "${AZURE_CLIENT_SECRET}"
+      }
+    },
+    "fabric-mcp-server": {
+      "command": "npx",
+      "args": ["-y", "@microsoft/fabric-mcp@latest", "server", "start", "--mode", "all"]
+    },
+    "sharepoint-mcp-server": {
+      "command": "npx",
+      "args": ["-y", "server-sharepoint"],
+      "env": {
+        "AZURE_APPLICATION_ID": "${AZURE_APPLICATION_ID}",
+        "AZURE_APPLICATION_CERTIFICATE_THUMBPRINT": "${AZURE_APPLICATION_CERTIFICATE_THUMBPRINT}",
+        "AZURE_APPLICATION_CERTIFICATE_PASSWORD": "${AZURE_APPLICATION_CERTIFICATE_PASSWORD}",
+        "M365_TENANT_ID": "${M365_TENANT_ID}"
+      }
+    }
+  }
+}
