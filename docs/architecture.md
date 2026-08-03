@@ -5,17 +5,21 @@
 ### Layer 1: MCP Servers (the tools)
 16 servers provide external capabilities. When the AI needs to search GitHub or fetch a web page, it calls an MCP server.
 
-- **npx (4)**: memory, sequential-thinking, perplexity, context7
-- **Docker (4)**: fetch, git, notion, n8n
-- **Custom Node (3)**: filesystem, power-apps, sharepoint
-- **Python/uvx (1)**: fabric
-- **Remote HTTP (4)**: github-official, foundry, vercel, figma
+- **npx (4)**: filesystem, memory, sequential-thinking, perplexity
+- **Docker (3)**: fetch, git, n8n
+- **Custom Node (2)**: power-apps, sharepoint
+- **Remote HTTP (7)**: github-official, context7, notion, fabric, foundry, vercel, figma
 
-The remote tier is the one that grows. `github-official` moved off a local Docker
-container onto GitHub's hosted endpoint, and `foundry` was added against Microsoft's
-hosted endpoint. Both authenticate interactively (OAuth / Entra ID) rather than
-holding a long-lived token, and both update server-side — no image to pull, no
-credential to rotate.
+The remote tier is the one that grows — it is now nearly half the stack.
+`github-official`, `notion`, `fabric`, and `context7` all moved off local
+runtimes onto their vendors' hosted endpoints, and `foundry` was added the same
+way. Each authenticates interactively (OAuth / Entra ID) rather than holding a
+long-lived token, and each updates server-side — no image to pull, no credential
+to rotate, no package resolution at launch.
+
+That leaves exactly three secrets in the config — `PERPLEXITY_API_KEY`,
+`CONTEXT7_API_KEY`, and the n8n pair — plus the Azure service-principal
+credentials still used by `power-apps` and `sharepoint`.
 
 **Context cost.** Every enabled server's tools occupy the model's context before
 work starts, so breadth is not free. `github-official` alone can expose well over a

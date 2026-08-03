@@ -12,10 +12,14 @@
 
 | Server | Package | Purpose | Cost |
 |---|---|---|---|
+| **filesystem** | `@modelcontextprotocol/server-filesystem` | Read/write/search local files | Free |
 | **memory** | `@modelcontextprotocol/server-memory` | Persistent knowledge graph across sessions | Free |
 | **sequentialthinking** | `@modelcontextprotocol/server-sequential-thinking` | Multi-step reasoning and problem decomposition | Free |
 | **perplexity-ask** | `@perplexity-ai/mcp-server` | Web research, fact verification, deep analysis | Paid |
-| **context7** | `@upstash/context7-mcp@latest` | Library/framework documentation lookup | Free |
+
+All four are current: `memory`, `sequentialthinking`, and `filesystem` are active
+reference servers in `modelcontextprotocol/servers`, and `@perplexity-ai/mcp-server`
+is Perplexity's own official package. No action needed on any of them.
 
 ### Setup
 ```bash
@@ -26,6 +30,29 @@ node --version
 ### Required Secrets
 - `PERPLEXITY_API_KEY` -- get from perplexity.ai/settings/api
 
+### filesystem: scope it deliberately
+
+The trailing arguments are the **allow-list of directories the model can read and
+write**. Nothing outside them is reachable, so they are the entire security boundary
+for this server.
+
+```json
+"filesystem": {
+  "command": "npx",
+  "args": [
+    "-y", "@modelcontextprotocol/server-filesystem",
+    "<path-to-projects-dir>",
+    "<path-to-second-allowed-dir>"
+  ]
+}
+```
+
+> This entry previously passed `c:/` as a root, which handed the model read/write
+> access to the **entire drive** — every other project, plus `Users`, `Windows`,
+> and `Program Files`. List the specific directories you actually work in. It also
+> ran a hand-built `dist/index.js` from a local path; the published npm package
+> removes that build step and stays current on its own.
+
 ---
 
 ## Docker-based Servers (Docker Desktop required)
@@ -34,25 +61,24 @@ node --version
 |---|---|---|
 | **fetch** | `mcp/fetch` | Fetch and parse web pages |
 | **git** | `mcp/git` | Git operations on local repos |
-| **notion** | `mcp/notion` | Notion pages, databases, blocks |
 | **n8n** | `mcp/n8n` | Workflow automation orchestration |
+
+`fetch` and `git` wrap active reference servers and are fine as they stand.
 
 ### Setup
 ```bash
 docker pull mcp/fetch
 docker pull mcp/git
-docker pull mcp/notion
 docker pull mcp/n8n
 ```
 
 ### Required Secrets
-- `NOTION_API_KEY` -- notion.so/my-integrations
 - `N8N_API_URL` + `N8N_API_KEY` -- from your n8n instance
 
-> **github-official moved out of this category.** It used to run as a local
-> Docker container against a PAT. It now points at GitHub's hosted server —
-> see below. The Docker image is still published and still works; it is
-> documented as a fallback rather than the default.
+> **github-official and notion moved out of this category.** Both now point at
+> their vendors' hosted servers — see the Remote HTTP section. GitHub's Docker
+> image is still published and is documented below as a fallback; Notion's local
+> server is being sunset by Notion and should not be relied on.
 
 ---
 
@@ -60,7 +86,6 @@ docker pull mcp/n8n
 
 | Server | Purpose |
 |---|---|
-| **filesystem** | Read/write/search local files |
 | **power-apps** | Microsoft Dataverse / Power Apps queries |
 | **sharepoint** | SharePoint file and list operations |
 
@@ -75,16 +100,16 @@ docker pull mcp/n8n
 
 ---
 
-## Python/uvx Server
+## Python/uvx Servers
 
-| Server | Package | Purpose |
-|---|---|---|
-| **fabric** | `microsoft-fabric-mcp` | Microsoft Fabric lakehouse queries |
+None currently. `fabric` used to live here on a community `microsoft-fabric-mcp`
+package and now points at Microsoft's official hosted endpoint instead.
 
-### Setup
+`uv` is still worth having installed — the optional `foundry-local` server
+documented below runs through `uvx`.
+
 ```bash
 pip install uv
-az login
 ```
 
 ---
@@ -94,9 +119,16 @@ az login
 | Server | URL | Purpose | Auth |
 |---|---|---|---|
 | **github-official** | `https://api.githubcopilot.com/mcp/` | GitHub API (issues, PRs, repos, code search, Actions, security) | OAuth |
+| **context7** | `https://mcp.context7.com/mcp` | Library/framework documentation lookup | Bearer key |
+| **notion** | `https://mcp.notion.com/mcp` | Notion pages, databases, blocks | OAuth |
+| **fabric** | `https://api.fabric.microsoft.com/v1/mcp/core` | Fabric workspaces, items, permissions | Entra ID |
 | **foundry** | `https://mcp.ai.azure.com` | Microsoft Foundry models, projects, agents | Entra ID |
 | **vercel** | `https://mcp.vercel.com` | Vercel deployments, domains, env vars | OAuth |
 | **figma** | `https://mcp.figma.com/mcp` | Figma design files, components, tokens | OAuth |
+
+Seven of sixteen servers now need no local runtime at all. That is the direction
+every vendor here is moving: hosted endpoint, OAuth or Entra sign-in, no stored
+credential, server-side updates.
 
 ---
 
@@ -288,3 +320,90 @@ Foundry extension tools — Microsoft ships a single [Azure MCP Server](https://
 (`servers/Azure.Mcp.Server`) covering all of them. Worth adding if this stack grows
 past Foundry into general Azure operations; it overlaps `fabric` and would replace
 the hand-rolled `power-apps` / `sharepoint` servers over time.
+
+---
+
+## notion (Notion's hosted MCP server)
+
+**Entry:**
+```json
+"notion": {
+  "url": "https://mcp.notion.com/mcp"
+}
+```
+
+OAuth through your Notion login. **No `NOTION_API_KEY`** — the hosted server does
+not accept bearer tokens at all, only user OAuth. Tools return Notion-flavored
+Markdown built for agents rather than raw block JSON, so responses cost far fewer
+tokens than the local server's output.
+
+> **Why this moved.** The local server carries an explicit notice from Notion:
+> *"We may sunset this local MCP server repository in the future. Issues and pull
+> requests here are not actively monitored."* Notion states it is
+> *"prioritizing, and only providing active support for, Notion MCP (remote)"*, and
+> its docs call the open-source one *"no longer actively maintained."* The previous
+> entry ran the `mcp/notion` Docker image against a `NOTION_API_KEY` — an
+> integration token to create, store, and rotate, pointed at a server on its way out.
+> If you ever need the local one, the maintained package is `@notionhq/notion-mcp-server`.
+
+---
+
+## fabric (Fabric Core MCP Server)
+
+**Entry:**
+```json
+"fabric": {
+  "url": "https://api.fabric.microsoft.com/v1/mcp/core"
+}
+```
+
+| Property | Value |
+|---|---|
+| Transport | Streamable HTTP |
+| Auth type | OAuth 2.0 Bearer Token |
+| Auth scope | `https://api.fabric.microsoft.com/.default` |
+| Identity provider | Microsoft Entra ID |
+
+Covers workspace management, item CRUD, permission management, and folder
+management. Every operation is **RBAC-enforced** against your own Fabric role
+(Admin / Member / Contributor / Viewer) and **audit-logged** under your identity —
+it cannot exceed the access you already have.
+
+> **Status: preview.** Configuration may change before GA.
+
+**Why this moved.** The old entry ran a community `microsoft-fabric-mcp` package via
+`uvx`. Microsoft now ships two official servers, and this is the one that matches
+how the server was being used here. Requires at least **Viewer** on one workspace;
+if the connection succeeds but returns nothing, that is usually the reason.
+
+**The other official one** is [Fabric MCP Server (local)](https://github.com/microsoft/mcp/tree/main/servers/Fabric.Mcp.Server) —
+development-focused, and complementary rather than competing. It covers what Core
+does not: **OneLake file operations** and **offline API specs/best practices**. Core
+has no OneLake access; local has no workspace or permission management. Microsoft
+explicitly supports running both at once.
+
+**Optional add-on:** connecting Microsoft Graph MCP lets you grant access by email
+address (`Add john@contoso.com as Contributor`) instead of looking up user GUIDs.
+
+---
+
+## context7 (hosted documentation lookup)
+
+**Entry:**
+```json
+"context7": {
+  "url": "https://mcp.context7.com/mcp",
+  "headers": { "Authorization": "Bearer ${env:CONTEXT7_API_KEY}" }
+}
+```
+
+Same tools as the npx version, without the local Node process or the `@latest`
+resolution on every launch. The key raises rate limits — generate one at
+context7.com/dashboard. Without `CONTEXT7_API_KEY` set, expect throttling under
+heavy use rather than a hard failure.
+
+Usage is unchanged: call `resolve-library-id` first, then `query-docs`.
+
+Local form if you prefer it: `npx -y @upstash/context7-mcp --api-key YOUR_API_KEY`.
+Note the key moves to a CLI flag there — OAuth is HTTP-only and does not work over
+stdio.

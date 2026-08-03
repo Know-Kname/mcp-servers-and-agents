@@ -6,10 +6,11 @@
 MCP NOT WORKING?
 |
 +-- 1. Restart Cursor (fixes most issues)
-+-- 2. Check Docker: docker info
-+-- 3. Validate JSON: Get-Content ~/.cursor/mcp.json | ConvertFrom-Json
-+-- 4. Check env vars: PERPLEXITY_API_KEY, GITHUB_PERSONAL_ACCESS_TOKEN
-+-- 5. Clear npm cache: npm cache clean --force
++-- 2. Remote server? Check sign-in, not Docker -- 7 of 16 are remote now
++-- 3. Check Docker: docker info   (only fetch, git, n8n need it)
++-- 4. Validate JSON: Get-Content ~/.cursor/mcp.json | ConvertFrom-Json
++-- 5. Check env vars: PERPLEXITY_API_KEY, CONTEXT7_API_KEY, N8N_API_KEY
++-- 6. Clear npm cache: npm cache clean --force
 ```
 
 ## Server-Specific Fixes
@@ -53,17 +54,46 @@ MCP NOT WORKING?
   add the local `foundry-local` server (see the server catalog).
 
 ### fabric
-- Install Azure CLI: `winget install Microsoft.AzureCLI`
-- Login: `az login`
+- Now the hosted Core server — `az login` and the Azure CLI are no longer part of
+  the path. The entry should be `https://api.fabric.microsoft.com/v1/mcp/core`.
+- Connects but returns nothing: you need at least **Viewer** on one Fabric
+  workspace. Every call is RBAC-scoped to your own role.
+- Connection fails: disconnect and reconnect the server in Cursor to redo the
+  OAuth flow. Auth scope is `https://api.fabric.microsoft.com/.default`.
+- Preview — configuration may change before GA.
+- Need OneLake file operations or offline API specs? Core doesn't cover those.
+  That's the local Fabric MCP Server; run both side by side.
+
+### notion
+- No Docker and no `NOTION_API_KEY`. The hosted server is **OAuth only** and
+  rejects bearer tokens outright — if you're setting a token, the config is stale.
+- No tools appear: complete the Notion OAuth sign-in from Cursor's MCP panel.
+- Pages missing: the OAuth grant controls which pages are shared with the
+  integration. Re-run the authorization and widen the page selection in Notion.
+- The old local server still exists but Notion has said it may be sunset and is
+  not actively monitored. Don't reintroduce it.
+
+### context7
+- Call `resolve-library-id` first, then `query-docs`. Use specific questions,
+  not keywords.
+- Throttled or rate-limited: set `CONTEXT7_API_KEY` (context7.com/dashboard).
+  The key is passed as an `Authorization: Bearer` header, not an env var on a
+  local process.
+- Using the stdio form instead? The key becomes a `--api-key` CLI flag; OAuth is
+  HTTP-only and won't work over stdio.
+
+### filesystem
+- "Access denied" outside your project: expected. The trailing args in `mcp.json`
+  are the full allow-list of reachable directories — add the directory you need.
+- Do **not** re-add `c:/` as a root to make an error go away. That exposes the
+  whole drive to the model. Add the specific folder instead.
+- No longer runs a hand-built `dist/index.js`; it uses the published
+  `@modelcontextprotocol/server-filesystem` package via npx.
 
 ### power-apps / sharepoint
 - Check Azure creds in mcp.json
 - Verify DATAVERSE_URL / SHAREPOINT_SITE_URL
 - Ensure app registration has API permissions
-
-### context7
-- Call `resolve-library-id` first, then `query-docs`
-- Use specific questions, not keywords
 
 ## Common Errors
 

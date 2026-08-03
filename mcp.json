@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "filesystem": {
-      "command": "node",
-      "args": ["<path-to>/server-filesystem/dist/index.js", "c:/", "c:/Users/<username>"]
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "<path-to-projects-dir>", "<path-to-second-allowed-dir>"]
     },
     "memory": {
       "command": "npx",
@@ -18,8 +18,8 @@
       "env": { "PERPLEXITY_API_KEY": "${env:PERPLEXITY_API_KEY}" }
     },
     "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@latest"]
+      "url": "https://mcp.context7.com/mcp",
+      "headers": { "Authorization": "Bearer ${env:CONTEXT7_API_KEY}" }
     },
     "fetch": {
       "command": "docker",
@@ -33,16 +33,14 @@
       "url": "https://api.githubcopilot.com/mcp/"
     },
     "notion": {
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "-e", "NOTION_API_KEY=${env:NOTION_API_KEY}", "mcp/notion"]
+      "url": "https://mcp.notion.com/mcp"
     },
     "n8n": {
       "command": "docker",
       "args": ["run", "-i", "--rm", "--init", "-e", "MCP_MODE=stdio", "-e", "LOG_LEVEL=error", "-e", "N8N_API_URL", "-e", "N8N_API_KEY", "mcp/n8n"]
     },
     "fabric": {
-      "command": "uvx",
-      "args": ["microsoft-fabric-mcp"]
+      "url": "https://api.fabric.microsoft.com/v1/mcp/core"
     },
     "foundry": {
       "url": "https://mcp.ai.azure.com"

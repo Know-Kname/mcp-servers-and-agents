@@ -18,11 +18,11 @@ This repo captures the full stack of MCP (Model Context Protocol) integrations, 
 Cursor IDE
   |
   +-- mcp.json (16 MCP servers)
-  |     +-- npx servers (memory, sequential-thinking, perplexity, context7)
-  |     +-- Docker servers (fetch, git, notion, n8n)
-  |     +-- Custom Node servers (filesystem, power-apps, sharepoint)
-  |     +-- Remote HTTP servers (github-official, foundry, vercel, figma)
-  |     +-- Python/uvx servers (fabric)
+  |     +-- npx servers (filesystem, memory, sequential-thinking, perplexity)
+  |     +-- Docker servers (fetch, git, n8n)
+  |     +-- Custom Node servers (power-apps, sharepoint)
+  |     +-- Remote HTTP servers (github-official, context7, notion,
+  |     |                        fabric, foundry, vercel, figma)
   |
   +-- rules/ (14 behavioral rules)
   |     +-- master-router.mdc (routes tasks to right tool/skill/agent)
@@ -61,12 +61,13 @@ Cursor IDE
 - [Cursor IDE](https://cursor.com) (or any MCP-compatible client that supports
   remote HTTP servers with interactive sign-in)
 - Node.js 20+ (for npx-based servers)
-- Docker Desktop (for Docker-based servers)
-- Python 3.11+ with `uv` (for Fabric server)
-- API keys: Perplexity, Notion, Azure AD (optional)
-- Interactive sign-in: GitHub (OAuth), Foundry (Entra ID), Vercel, Figma —
-  no stored tokens. A GitHub PAT is only needed for the Docker fallback or
-  GitHub Enterprise; see the [server catalog](servers/README.md).
+- Docker Desktop (only for `fetch`, `git`, `n8n`)
+- API keys: Perplexity, Context7, n8n, Azure AD (optional)
+- Interactive sign-in: GitHub (OAuth), Notion (OAuth), Fabric (Entra ID),
+  Foundry (Entra ID), Vercel, Figma — no stored tokens. A GitHub PAT is only
+  needed for the Docker fallback or GitHub Enterprise; see the
+  [server catalog](servers/README.md).
+- `uv` only if you add the optional `foundry-local` server
 
 ## License
 
