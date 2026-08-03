@@ -49,6 +49,18 @@ jobs:
             echo "All JSON files are valid"
           fi
 
+  validate-mcp-config:
+    name: Validate MCP Config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      # Parsing is a low bar -- an entry can be valid JSON and still expose a
+      # whole drive or hardcode a live key. This enforces the review rules that
+      # would otherwise only exist in someone's head.
+      - name: Validate mcp.json semantics
+        run: python3 scripts/validate-mcp-config.py mcp.json
+
   check-links:
     name: Check Links
     runs-on: ubuntu-latest

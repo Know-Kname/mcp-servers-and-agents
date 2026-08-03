@@ -55,6 +55,17 @@ wrong in the direction of "too much access":
 For filesystem-style servers, the directory list *is* the security boundary. Name
 the specific folders; never pass a drive root.
 
+## 3c. Validate
+
+```bash
+python3 scripts/validate-mcp-config.py mcp.json
+```
+
+Catches the mistakes that are still valid JSON: a missing or doubled transport,
+a credential written inline instead of referenced, a filesystem scope set to a
+drive root, a plaintext URL. Runs in CI too. See [SECURITY.md](../SECURITY.md)
+for the judgment calls it cannot check.
+
 ## 4. Restart Cursor
 MCP servers only load on startup.
 

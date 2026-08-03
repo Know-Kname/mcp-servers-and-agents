@@ -7,10 +7,26 @@ This repo captures the full stack of MCP (Model Context Protocol) integrations, 
 ## Quick Start
 
 1. Copy `mcp.json` to `~/.cursor/mcp.json`
-2. Replace placeholder secrets (`${env:...}`) with your actual API keys
-3. Restart Cursor
-4. Copy agent definitions from `agents/` to `~/.cursor/agents/`
-5. Copy rules from `rules/` to `~/.cursor/rules/`
+2. Replace the `<path-to...>` placeholders with real paths — especially the
+   `filesystem` directory list, which is that server's entire security boundary
+3. Set your API keys as **system environment variables** (`PERPLEXITY_API_KEY`,
+   `CONTEXT7_API_KEY`, `N8N_API_URL`, `N8N_API_KEY`). Leave the `${env:...}`
+   references in the file as they are — they read from the environment, so
+   nothing secret is ever written into the config
+4. Restart Cursor
+5. Sign in when prompted for the remote servers (GitHub, Notion, Fabric,
+   Foundry, Vercel, Figma) — these use OAuth/Entra and need no stored token
+6. Verify: `python3 scripts/validate-mcp-config.py ~/.cursor/mcp.json`
+
+> Step 3 previously read *"replace placeholder secrets (`${env:...}`) with your
+> actual API keys"* — which would write live credentials into a file this repo
+> then asks you to commit. `${env:VAR}` exists precisely so that never happens.
+>
+> **What this repo actually ships:** `mcp.json`, the catalogs under `servers/`,
+> `agents/`, `skills/`, and `rules/`, and the docs. The agent, skill, and rule
+> **definitions are not in the repo** — those directories hold catalogs
+> describing them, not the `.mdc`/`SKILL.md` files themselves. Contributing them
+> is tracked as follow-up work.
 
 ## Architecture
 
