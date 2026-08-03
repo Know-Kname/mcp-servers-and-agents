@@ -30,8 +30,7 @@
       "args": ["run", "-i", "--rm", "-v", "C:/Users/<username>:/user", "mcp/git"]
     },
     "github-official": {
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "-e", "GITHUB_PERSONAL_ACCESS_TOKEN", "ghcr.io/github/github-mcp-server"]
+      "url": "https://api.githubcopilot.com/mcp/"
     },
     "notion": {
       "command": "docker",
@@ -44,6 +43,9 @@
     "fabric": {
       "command": "uvx",
       "args": ["microsoft-fabric-mcp"]
+    },
+    "foundry": {
+      "url": "https://mcp.ai.azure.com"
     },
     "power-apps": {
       "command": "node",

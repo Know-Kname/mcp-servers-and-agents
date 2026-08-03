@@ -1,6 +1,6 @@
 # MCP Servers and Agents
 
-A complete, documented AI/MCP infrastructure: 15 servers, 16 agents, 31 skills, and 14 rules working together in Cursor IDE.
+A complete, documented AI/MCP infrastructure: 16 servers, 16 agents, 31 skills, and 14 rules working together in Cursor IDE.
 
 This repo captures the full stack of MCP (Model Context Protocol) integrations, AI agent definitions, reusable skills, and behavioral rules that power an advanced AI-assisted development workflow.
 
@@ -17,11 +17,11 @@ This repo captures the full stack of MCP (Model Context Protocol) integrations, 
 ```
 Cursor IDE
   |
-  +-- mcp.json (15 MCP servers)
+  +-- mcp.json (16 MCP servers)
   |     +-- npx servers (memory, sequential-thinking, perplexity, context7)
-  |     +-- Docker servers (fetch, git, github, notion, n8n)
+  |     +-- Docker servers (fetch, git, notion, n8n)
   |     +-- Custom Node servers (filesystem, power-apps, sharepoint)
-  |     +-- Remote SSE servers (vercel, figma)
+  |     +-- Remote HTTP servers (github-official, foundry, vercel, figma)
   |     +-- Python/uvx servers (fabric)
   |
   +-- rules/ (14 behavioral rules)
@@ -41,7 +41,7 @@ Cursor IDE
 
 | Component | Count | Description |
 |---|---|---|
-| MCP Servers | 15 | External tool integrations (GitHub, Notion, Vercel, etc.) |
+| MCP Servers | 16 | External tool integrations (GitHub, Foundry, Notion, Vercel, etc.) |
 | Agents | 16 | Specialized AI personas for different tasks |
 | Skills | 31 | Reusable workflow templates |
 | Rules | 14 | Behavioral guidelines that shape AI responses |
@@ -58,11 +58,15 @@ Cursor IDE
 
 ## Requirements
 
-- [Cursor IDE](https://cursor.com) (or any MCP-compatible client)
+- [Cursor IDE](https://cursor.com) (or any MCP-compatible client that supports
+  remote HTTP servers with interactive sign-in)
 - Node.js 20+ (for npx-based servers)
 - Docker Desktop (for Docker-based servers)
 - Python 3.11+ with `uv` (for Fabric server)
-- API keys: GitHub PAT, Perplexity, Notion, Azure AD (optional)
+- API keys: Perplexity, Notion, Azure AD (optional)
+- Interactive sign-in: GitHub (OAuth), Foundry (Entra ID), Vercel, Figma —
+  no stored tokens. A GitHub PAT is only needed for the Docker fallback or
+  GitHub Enterprise; see the [server catalog](servers/README.md).
 
 ## License
 
