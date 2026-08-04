@@ -1,57 +1,85 @@
 # Skill Catalog
 
-31 reusable workflow skills organized by category.
+16 skills in [`.claude/skills/`](../.claude/skills/). Each is a directory —
+`SKILL.md` plus `scripts/` and `references/` where they earn their place.
 
-### Core Workflow (6)
+Skills follow the [Agent Skills](https://agentskills.io) open standard. Claude
+Code reads `.claude/skills/` natively; other clients read the same layout
+through their compatibility paths.
+
+Invoke with `/<name>`, or let the model load one when the `description`
+matches.
+
+## MCP and infrastructure
+
+| Skill | Purpose | Bundled |
+|---|---|---|
+| **mcp-health-check** | Config validity, server inventory, prerequisites, doc drift | `health-check.sh` |
+| **security-audit** | Credential exposure, permission scope, supply chain | `audit.sh`, threat model |
+| **mcp-server-build** | Add or replace a server; scope it correctly | — |
+
+## Core workflow
+
+| Skill | Purpose | Bundled |
+|---|---|---|
+| **research-organize** | Multi-source research, persisted with sources | — |
+| **auto-deploy** | Pre-flight, sequencing, post-deploy verification | `preflight.sh` |
+| **doc-pipeline** | Find doc drift; make claims mechanically checkable | — |
+| **incident-response** | Stabilise, then diagnose, then write it up | — |
+
+## Platform
+
+| Skill | Purpose | Bundled |
+|---|---|---|
+| **github-workflow** | Branching, commit bodies, PRs, CI hygiene | `pre-push-check.sh` |
+| **vercel-deploy** | Per-environment variables, build settings, preview vs prod | — |
+
+## Development
+
 | Skill | Purpose |
 |---|---|
-| **scaffold-app** | Scaffold new apps, APIs, websites |
-| **auto-deploy** | Deploy to any platform with smart detection |
-| **research-organize** | Conduct and persist research findings |
-| **task-orchestrator** | Manage tasks for human and AI agents |
-| **project-registry** | Track projects, stacks, URLs |
-| **doc-pipeline** | Auto-generate and sync documentation |
+| **code-review** | Ordered by cost of being wrong; concrete failure paths |
+| **testing** | Red-green discipline; why green suites miss bugs |
+| **debugging** | Reproduce, narrow, confirm the mechanism |
+| **api-design** | Resources, status codes, error shapes, idempotency |
+| **database-design** | Constraints, reversible migrations, lock behaviour |
+| **smart-refactor** | Safety net first; why bulk edits corrupt definitions |
 
-### Platform Integration (5)
+## Research
+
 | Skill | Purpose |
 |---|---|
-| **github-workflow** | PRs, branching, CI management |
-| **vercel-deploy** | Vercel deployment best practices |
-| **linear-issue** | Linear issues with GitHub linking |
-| **design-handoff** | Figma-to-code workflow |
-| **notion-doc** | Notion documentation management |
+| **perplexity-research** | When paid search is justified, and how to verify it |
 
-### Development (7)
-| Skill | Purpose |
-|---|---|
-| **code-review** | Quality, security, performance review |
-| **testing** | TDD with Jest, Vitest, pytest |
-| **debugging** | Systematic bug investigation |
-| **api-design** | RESTful API patterns |
-| **database-design** | Schema, queries, migrations |
-| **smart-refactor** | Research-backed refactoring |
-| **quick-prototype** | Rapid prototyping |
+## `auto-deploy` cannot self-invoke
 
-### Research (3)
-| Skill | Purpose |
-|---|---|
-| **perplexity-research** | Perplexity with cost optimization |
-| **research** | Multi-source research |
-| **learning-mode** | Structured tech learning |
+It sets `disable-model-invocation: true`. Deploying is a human decision, and a
+model should not conclude the code looks ready. You invoke it explicitly.
 
-### Documentation (1)
-| Skill | Purpose |
-|---|---|
-| **auto-document** | Generate docs from code |
+## Dropped from the original 31
 
-### Specialized (8)
-| Skill | Purpose |
-|---|---|
-| **content-workflow** | Content creation pipelines |
-| **dataverse-operations** | Dataverse queries and ops |
-| **sharepoint-operations** | SharePoint files and lists |
-| **alm-pipeline** | Power Platform ALM |
-| **environment-optimizer** | Dev environment performance |
-| **incident-response** | Production incident triage |
-| **task-automation** | Automate repetitive tasks |
-| **project-planning** | Structured project planning |
+The old catalog listed thirty-one. Fifteen were not carried over — the
+business-domain ones (`dataverse-operations`, `sharepoint-operations`,
+`alm-pipeline`, `content-workflow`) belong with the real workflows they
+describe, and several others (`scaffold-app`, `quick-prototype`,
+`project-registry`, `task-orchestrator`, `learning-mode`) were thin enough that
+a skill added nothing over asking directly.
+
+Quality was the constraint: sixteen skills carrying working scripts and
+specifics beat thirty-one carrying descriptions.
+
+## Adding one
+
+```text
+.claude/skills/<name>/
+├── SKILL.md          # name + description frontmatter required
+├── scripts/          # executable, and referenced from SKILL.md
+└── references/       # detail loaded only when needed
+```
+
+`name` must match the directory — that is where the `/command` comes from.
+Validate with:
+
+```bash
+python3 scripts/validate-definitions.py .
+```

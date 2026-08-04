@@ -14,7 +14,7 @@ A portable agent toolkit: MCP server configuration, subagent definitions,
 skills, and the docs that hold them together. There is no application to build
 and no test suite to run — the artifacts *are* the product.
 
-```
+```text
 mcp.json               16 MCP servers (7 remote, 9 local)
 AGENTS.md              this file — portable working agreements
 .claude/agents/        8 subagents

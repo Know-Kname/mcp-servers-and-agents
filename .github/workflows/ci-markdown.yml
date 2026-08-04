@@ -61,6 +61,30 @@ jobs:
       - name: Validate mcp.json semantics
         run: python3 scripts/validate-mcp-config.py mcp.json
 
+  validate-definitions:
+    name: Validate Definitions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      # Catches the repo's original defect: catalogs advertising definitions
+      # that do not exist. Also checks SKILL.md frontmatter, name/directory
+      # agreement (the /command derives from it), and that every referenced
+      # script is really there.
+      - name: Validate skills and subagents
+        run: python3 scripts/validate-definitions.py .
+
+      - name: Check bundled scripts parse
+        run: |
+          status=0
+          while IFS= read -r s; do
+            bash -n "$s" || { echo "syntax error: $s"; status=1; }
+          done < <(find .claude/skills -name '*.sh')
+          while IFS= read -r s; do
+            python3 -m py_compile "$s" || { echo "syntax error: $s"; status=1; }
+          done < <(find scripts .claude/skills -name '*.py')
+          exit $status
+
   check-links:
     name: Check Links
     runs-on: ubuntu-latest
