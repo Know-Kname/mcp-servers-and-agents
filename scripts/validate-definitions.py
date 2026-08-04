@@ -97,12 +97,23 @@ def check_skill(skill_dir: Path, root: Path) -> None:
              "when deciding whether to load this skill")
 
     # Every scripts/ path named in the body must exist and be runnable.
-    for ref in set(re.findall(r"scripts/[A-Za-z0-9_./-]+", body)):
-        target = skill_dir / ref
-        if not target.exists():
-            err(f"{rel}/SKILL.md", f"references '{ref}' which does not exist")
+    #
+    # A reference resolves against either the skill's own directory or the repo
+    # root: skills legitimately call shared tooling (scripts/validate-*.py) and
+    # each other's scripts, not only their own bundled ones. Checking against
+    # the skill dir alone flags every shared-tool reference as broken.
+    # The leading [A-Za-z0-9_./-]* captures any path prefix. Without it the
+    # pattern matches the `scripts/health-check.sh` tail out of the middle of a
+    # valid full path like `.claude/skills/mcp-health-check/scripts/...` and
+    # reports a working reference as broken.
+    for ref in sorted(set(re.findall(r"[A-Za-z0-9_./-]*scripts/[A-Za-z0-9_./-]+", body))):
+        candidates = [skill_dir / ref, root / ref]
+        target = next((c for c in candidates if c.exists()), None)
+        if target is None:
+            err(f"{rel}/SKILL.md",
+                f"references '{ref}' — not found in the skill directory or repo root")
         elif target.suffix in (".sh", ".py") and not (target.stat().st_mode & 0o111):
-            warn(f"{rel}/{ref}", "referenced script is not executable")
+            warn(f"{rel}/SKILL.md", f"referenced script '{ref}' is not executable")
 
 
 def check_agent(path: Path, root: Path) -> None:

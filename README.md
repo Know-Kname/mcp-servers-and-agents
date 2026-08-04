@@ -64,7 +64,7 @@ Cursor IDE
 
 ## Documentation
 
-- [Server Catalog](servers/README.md) -- all 15 servers with setup instructions
+- [Server Catalog](servers/README.md) -- all 16 servers with setup instructions
 - [Agent Catalog](agents/README.md) -- all 16 agents with descriptions
 - [Skill Catalog](skills/README.md) -- all 31 skills by category
 - [Rule Catalog](rules/README.md) -- all 14 rules with summaries
